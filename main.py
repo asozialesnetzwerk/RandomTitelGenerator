@@ -49,9 +49,6 @@ words = open("sorted_words").read().splitlines()
 print(len(words))
 # words = ["Test", "Schnelltest", "Pinguin", "Test", "Känguru"]
 
-output = open("output.txt", "w")
-output.write("")
-output.close()
 
 # read file
 with open('article.json', 'r') as myfile:
@@ -60,9 +57,11 @@ with open('article.json', 'r') as myfile:
 # parse file
 articles = json.loads(data)
 
-for j in range(0, len(words)):
-    with open("status", "w") as f:
-        f.write(str(j))
+# read file
+with open('status', 'r') as myfile:
+    start = int(myfile.read())
+
+for j in range(start, len(words)):
     word = words[j]
     found = False
     for i in range(len(word) - 2):
@@ -83,3 +82,6 @@ for j in range(0, len(words)):
             except:
                 print("error with: " + word)
                 write_to_file("error.txt", word + "\n")
+
+    with open("status", "w") as f:
+        f.write(str(j + 1))
