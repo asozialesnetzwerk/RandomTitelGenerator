@@ -10,12 +10,12 @@ def get_article(title):
     """
     if ", der" in title:
         return "der"
-    elif ", die" in title:
+    if ", die" in title:
         return "die"
-    elif ", das" in title:
+    if ", das" in title:
         return "das"
-    else:
-        return None
+
+    return None
 
 
 def replace_umlauts(word_to_replace):
@@ -40,8 +40,8 @@ def search_duden(search, not_replaced_word):
 
 
 def write_to_file(file_name, val):
-    with open(file_name, "a") as f:
-        f.write(val)
+    with open(file_name, "a") as ffff:
+        ffff.write(val)
 
 
 words = open("sorted_words").read().splitlines()
@@ -76,10 +76,10 @@ for j in range(start, len(words)):
         replaced_word = replace_umlauts(word)
         try:
             search_duden(replaced_word, word)
-        except:
+        except Exception:
             try:
                 search_duden(replaced_word.upper(), word.upper())
-            except:
+            except Exception as exc:
                 print("error with: " + word)
                 write_to_file("error.txt", word + "\n")
 
