@@ -11,10 +11,12 @@ function genWords(callback) {
             const lReplaced = replaceUmlauts(lower);
             if (s.length <= 28 //because of discords limitations
                 && s.length > 2 //
-                && !lReplaced.startsWith(last)) {
+                && (Math.abs(s.length - last.length) >= 3 || !lReplaced.startsWith(last))) {
                 if (lower !== s) {
                     newStr.push(addArticle(lower, ruleArr));
-                    last = lReplaced;
+                    if (!lReplaced.startsWith(last)
+                        || lReplaced.length > last.length)
+                        last = lReplaced;
                 }
             }
         });
@@ -48,11 +50,11 @@ function readFiles(callback) {
 }
 
 function addArticle(strLower, rules) {
-    for (const rule of rules) {
-        if (strLower.endsWith(rule[1])) {
-            return rule[0] + firstCharToUppercase(strLower);
-        }
-    }
+    //for (const rule of rules) {
+    //    if (strLower.endsWith(rule[1])) {
+    //        return rule[0] + firstCharToUppercase(strLower);
+    //    }
+    //}
     return firstCharToUppercase(strLower);
 }
 
