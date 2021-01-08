@@ -24,7 +24,7 @@ jobs:
       - name: Test
         uses: VaultVulp/action-pipenv@v2.0.1
         with:
-          command: main # Run custom `main` command defined in the `[scripts]` block of Pipfile
+          command: pipenv run python main.py 
       - uses: montudor/action-zip@v0.1.1
         with:
           args: zip -qq -r result.zip /  
