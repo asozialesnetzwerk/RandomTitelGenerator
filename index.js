@@ -1,63 +1,36 @@
-function genWords(callback) {
-    readFiles((rules, words) => {
-        const ruleArr = [];
-        for (const rule of rules.split("\n")) {
-            ruleArr.push(rule.split("-"));
-        }
-        const newStr = [];
-        let last = "qqqqq";
-        words.split("\n").forEach(s => {
-            const lower = s.toLowerCase();
-            const lReplaced = replaceUmlauts(lower);
-            if (s.length <= 28 //because of discords limitations
-                && s.length > 2 //
-                && (Math.abs(s.length - last.length) >= 3 || !lReplaced.startsWith(last))) {
-                if (lower !== s) {
-                    newStr.push(addArticle(lower, ruleArr));
-                    if (!lReplaced.startsWith(last)
-                        || lReplaced.length > last.length)
-                        last = lReplaced;
-                }
-            }
-        });
-        if (typeof callback === "function") {
-            callback(newStr);
-        } else {
-            console.log(newStr);
-        }
-    }, "rules.txt", "words.txt");
-}
+const output = document.getElementById("output");
+let words = [];
 
-function replaceUmlauts(str) {
-    return str.replace("ä", "a").replace("ö", "o").replace("ü", "u");
-}
+fetch("word_generation/output.txt")
+    .then(response => response.text())
+    .then(text => {
+    words = text.split("\n");
 
-function readFiles(callback) {
-    if (arguments.length <= 1) {
-        console.error("Missing arguments.");
-        return;
+    //get title from url
+    let results = new RegExp("[\?&]id=([^&#]*)").exec(window.location.href);
+    if (results) {
+        displayTitle(num);
+    } else {
+        displayTitle(getRandomId());
     }
-    const promises = [];
-    const texts = [];
-    for (let i = 1; i < arguments.length; i++) {
-        promises.push(fetch(arguments[i]).then(result => result.text()).then(str => texts[i - 1] = str));
-    }
-    Promise.all(promises).then(() => {
-        callback.apply(callback, texts);
-    }).catch(e => {
-        console.error(e);
-    });
+}).catch(error => {
+    console.error(error);
+});
+
+function getRandomId() {
+    return Math.floor(Math.random() * words.length);
 }
 
-function addArticle(strLower, rules) {
-    //for (const rule of rules) {
-    //    if (strLower.endsWith(rule[1])) {
-    //        return rule[0] + firstCharToUppercase(strLower);
-    //    }
-    //}
-    return firstCharToUppercase(strLower);
+function displayTitle(id) {
+    output.innerText = getTitleById(id);
+    updateUrl(id);
 }
 
-function firstCharToUppercase(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+function getTitleById(id) {
+    return words[id];
+}
+
+function updateUrl(id) {
+    const url = window.location.href.split("?")[0] + "?id=" + id.toString();
+    history.replaceState("", url, url);
 }
