@@ -37,6 +37,8 @@ def search_duden(search, not_replaced_word):
             write_to_file("output.txt", article + " " + not_replaced_word + "\n")
             with open("article.json", "w") as article_json_file:
                 article_json_file.write(str(articles))
+            return True
+    return False
 
 
 def write_to_file(file_name, val):
@@ -59,7 +61,8 @@ articles = json.loads(data)
 
 # read file
 with open('status', 'r') as myfile:
-    start = int(myfile.read())
+    myfile_read = myfile.read()
+    start = int(myfile_read) if len(myfile_read) != 0 else 0
 
 for j in range(start, len(words)):
     word = words[j]
@@ -70,24 +73,26 @@ for j in range(start, len(words)):
         write_to_file("output.txt", art + " " + word + "\n")
         found = True
 
-    if len(word) > 5:
+    if not found:
+        replaced_word = replace_umlauts(word)
+        try:
+            if search_duden(replaced_word, word):
+                found = True
+        except Exception:
+            try:
+                if search_duden(replaced_word.upper(), word.upper()):
+                    found = True
+            except Exception as exc:
+                print("error with: " + word)
+                write_to_file("error.txt", word + " - " + str(exc) + "\n")
+
+    if not found:
         for i in range(2, len(word) - 2):
             art = articles.get(w_lower[i:], None)
             if art is not None:
                 write_to_file("output.txt", art + " " + word + "\n")
                 found = True
                 break
-
-    if not found:
-        replaced_word = replace_umlauts(word)
-        try:
-            search_duden(replaced_word, word)
-        except Exception:
-            try:
-                search_duden(replaced_word.upper(), word.upper())
-            except Exception as exc:
-                print("error with: " + word)
-                write_to_file("error.txt", word + " - " + str(exc) + "\n")
 
     with open("status", "w") as f:
         f.write(str(j + 1))
